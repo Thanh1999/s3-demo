@@ -32,10 +32,14 @@ jobs:
           aws s3api create-bucket \
             --bucket ${{env.S3-BUCKET}}
 
+      - name: Configure S3 bucket
+        run: |
+          aws s3api put-public-access-block \ 
+          --bucket ${{env.S3-BUCKET}} \
+          --public-access-block-configuration "BlockPublicAcls=false,BlockPublicPolicy=false,IgnorePublicAcls=false,RestrictPublicBuckets=false"
+
       - name: Set public read policy
         run: |
-          aws s3api delete-public-access-block \
-          --bucket ${{env.S3-BUCKET}}
           aws s3api put-bucket-policy \
             --bucket ${{env.S3-BUCKET}} \
             --policy '{
@@ -46,15 +50,6 @@ jobs:
                   "Effect": "Allow",
                   "Principal": "*",
                   "Action": "s3:GetObject",
-                  "Resource": "arn:aws:s3:::${{env.S3-BUCKET}}/*"
-                },
-                {
-                  "Sid": "PutObject",
-                  "Effect": "Allow",
-                  "Principal": {
-                      "AWS": "arn:aws:iam::${{secrets.ACCOUNT_ID}}"
-                  },
-                  "Action": "s3:PutObject",
                   "Resource": "arn:aws:s3:::${{env.S3-BUCKET}}/*"
                 }
               ]

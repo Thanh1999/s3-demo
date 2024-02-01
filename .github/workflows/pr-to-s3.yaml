@@ -34,6 +34,8 @@ jobs:
 
       - name: Set public read policy
         run: |
+          aws s3api delete-public-access-block \
+          --bucket ${{env.S3-BUCKET}}
           aws s3api put-bucket-policy \
             --bucket ${{env.S3-BUCKET}} \
             --policy '{

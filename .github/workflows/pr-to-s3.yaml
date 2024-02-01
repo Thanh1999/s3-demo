@@ -52,12 +52,10 @@ jobs:
                   "Sid": "PutObject",
                   "Effect": "Allow",
                   "Principal": {
-                      "AWS": "arn:aws:iam::${{secrets.ACCOUNT_ID}}",
+                      "AWS": "arn:aws:iam::${{secrets.ACCOUNT_ID}}"
                   },
-                  "Action": [
-                      "s3:PutObject",
-                  ],
-                  "Resource": "arn:aws:s3:::${{env.S3-BUCKET}}/*",
+                  "Action": "s3:PutObject",
+                  "Resource": "arn:aws:s3:::${{env.S3-BUCKET}}/*"
                 }
               ]
             }'

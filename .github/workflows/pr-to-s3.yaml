@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  S3-BUCKET: ${{secrets.S3_BUCKET}}-${{ github.event.pull_request.number }}
+
 
 jobs:
   move-content:
@@ -27,7 +30,24 @@ jobs:
       - name: Create S3 bucket
         run: |
           aws s3api create-bucket \
-            --bucket ${{secrets.S3_BUCKET}}-${{ github.event.pull_request.number }}
+            --bucket ${{env.S3-BUCKET}}
+
+      - name: Set public read policy
+        run: |
+          aws s3api put-bucket-policy \
+            --bucket ${{env.S3-BUCKET}} \
+            --policy '{
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "PublicReadGetObject",
+                  "Effect": "Allow",
+                  "Principal": "*",
+                  "Action": "s3:GetObject",
+                  "Resource": "arn:aws:s3:::${{env.S3-BUCKET}}/*"
+                }
+              ]
+            }'
 
       - name: Sync files to S3 bucket
         run: aws s3 sync . s3://${{secrets.S3_BUCKET}}-${{ github.event.pull_request.number }} --acl public-read

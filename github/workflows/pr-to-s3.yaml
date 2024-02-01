@@ -1,0 +1,26 @@
+name: "PULL REQUEST to S3"
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+
+jobs:
+  move-content:
+    name: "Move content to non prod"
+    runs-on: ubuntu-latest
+    environment:
+      name: nonprod
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+
+      - name: 🚀 Deploy Public Content to S3
+        run: |
+          docker run --rm -v $(pwd)/content/:/content \
+                          -w /content \
+                          -e AWS_ACCESS_KEY_ID=${{secrets.AWS_ACCESS_KEY_ID}} \
+                          -e AWS_SECRET_ACCESS_KEY=${{secrets.AWS_SECRET_ACCESS_KEY}} \
+                          amazon/aws-cli s3 sync . s3://${{secrets.S3_BUCKET}} --delete --acl public-read --cache-control max-age=604800

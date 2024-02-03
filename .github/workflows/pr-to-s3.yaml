@@ -65,12 +65,19 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-            if (context.payload.pull_request.body === null) {
-              github.rest.pulls.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: `Your pull request access link will be https://${{env.S3-BUCKET}}.s3.us-east-1.amazonaws.com/
-                      + '\n' + For example: https://${{env.S3-BUCKET}}.s3.us-east-1.amazonaws.com/images/logos/lastv.png
-                      + '\n' + context.payload.pull_request.body`
-              })
+            if (context.payload.pull_request && context.payload.pull_request.body === null) {
+              if (github.rest.pulls) {
+                github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: context.payload.pull_request.number,
+                  body: `Your pull request access link will be https://${{env.S3-BUCKET}}.s3.us-east-1.amazonaws.com/
+                        \nFor example: https://${{env.S3-BUCKET}}.s3.us-east-1.amazonaws.com/images/logos/lastv.png
+                        \n${context.payload.pull_request.body}`
+                });
+              } else {
+                console.log("github.rest.pulls is undefined");
+              }
+            } else {
+              console.log("Pull request body is not null");
             }

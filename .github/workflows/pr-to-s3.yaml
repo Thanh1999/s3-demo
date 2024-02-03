@@ -56,4 +56,8 @@ jobs:
             }'
 
       - name: Sync files to S3 bucket
-        run: aws s3 sync . s3://${{secrets.S3_BUCKET}}-${{ github.event.pull_request.number }} --exclude "*.md, .github/*, .git/*"
+        run: | 
+          aws s3 sync . s3://${{secrets.S3_BUCKET}}-${{ github.event.pull_request.number }} \
+            --exclude '*.md' \
+            --exclude '.github/*' \
+            --exclude '.git/*'

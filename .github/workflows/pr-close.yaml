@@ -1,0 +1,25 @@
+name: Delete S3 Bucket
+
+on:
+  pull_request:
+    types:
+      - closed
+
+env:
+  S3-BUCKET: ${{secrets.S3_BUCKET}}-${{ github.event.pull_request.number }}
+
+jobs:
+  delete_bucket:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Delete S3 Bucket
+        env:
+          BUCKET_NAME: your-bucket-name
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 rb s3://${{env.S3-BUCKET}} --force

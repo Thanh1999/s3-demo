@@ -31,7 +31,7 @@ jobs:
         run: |
           if aws s3api head-bucket --bucket  ${{env.S3-BUCKET}} 2>/dev/null; then
             echo "Bucket already exists, skipping create step"
-            echo "::set-output name=existed::true"
+            echo "existed=true" >> $GITHUB_OUTPUT
           else
             echo "Bucket does not exist, proceeding with create step"
           fi
@@ -84,7 +84,7 @@ jobs:
                 repo: context.repo.repo,
                 pull_number: context.payload.pull_request.number,
                 body: `Your pull request access link will be https://${{env.S3-BUCKET}}.s3.us-east-1.amazonaws.com/
-                      \nFor example: https://${{env.S3-BUCKET}}.s3.us-east-1.amazonaws.com/images/logos/lastv.png
+                      \nFor example: https://${{env.S3-BUCKET}}.s3.us-east-1.amazonaws.com/images/logos/lastv.png`
               });
             } else {
               console.log("Pull request body is not null");

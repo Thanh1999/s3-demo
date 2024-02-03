@@ -25,13 +25,24 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+      
+      - name: Check if bucket exist
+        id: bucket_existed
+        run: |
+          if aws s3api head-bucket --bucket  ${{env.S3-BUCKET}} 2>/dev/null; then
+            echo "Bucket already exists, skipping create step"
+            echo "::set-output name=existed::true"
+          else
+            echo "Bucket does not exist, proceeding with create step"
 
       - name: Create S3 bucket
+        if: steps.bucket_existed.outputs.existed != 'true'
         run: |
           aws s3api create-bucket \
             --bucket ${{env.S3-BUCKET}}
 
       - name: Configure S3 bucket
+        if: steps.bucket_existed.outputs.existed != 'true'
         run: |
           aws s3api put-public-access-block \
             --bucket ${{env.S3-BUCKET}} \
@@ -73,7 +84,6 @@ jobs:
                 pull_number: context.payload.pull_request.number,
                 body: `Your pull request access link will be https://${{env.S3-BUCKET}}.s3.us-east-1.amazonaws.com/
                       \nFor example: https://${{env.S3-BUCKET}}.s3.us-east-1.amazonaws.com/images/logos/lastv.png
-                      \n${context.payload.pull_request.body}`
               });
             } else {
               console.log("Pull request body is not null");

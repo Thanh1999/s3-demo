@@ -30,9 +30,11 @@ jobs:
         id: bucket_existed
         run: |
           if aws s3api head-bucket --bucket  ${{env.S3-BUCKET}} 2>/dev/null; then
+            echo "Bucket already exists, skipping create step"
             echo "::set-output name=existed::true"
           else
             echo "Bucket does not exist, proceeding with create step"
+          fi
 
       - name: Create S3 bucket
         if: steps.bucket_existed.outputs.existed != 'true'
